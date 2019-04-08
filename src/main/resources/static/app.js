@@ -27,9 +27,16 @@ var app = (function () {
             y: evt.clientY - rect.top
         };
     };
+
+
+    //https://stackoverflow.com/questions/23744605/javascript-get-x-and-y-coordinates-on-mouse-click
+    var sendFromCanvas = function(env){
+        var pos = getMousePosition(env)
+        console.log(pos.x + " " + pos.y );
+    	stompClient.send("/topic/newpoint", {}, JSON.stringify(pos));
+    };
     
     var sendTopicNewPt = function(){
-        console.log(pt.x + " " + pt.y  );
         stompClient.send("/topic/newpoint", {}, JSON.stringify(pt)); 
     };
 
@@ -41,9 +48,7 @@ var app = (function () {
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
             stompClient.subscribe('/topic/newpoint', function (eventbody) {
-                console.log("cout <<  "+ eventbody.body);
                 var ptn=JSON.parse(eventbody.body);
-                alert("Punto : "+ptn.x  + ", " + ptn.y);
                 addPointToCanvas(ptn);
             });
         });
@@ -55,6 +60,7 @@ var app = (function () {
 
         init: function () {
             var can = document.getElementById("canvas");
+            can.addEventListener('click',sendFromCanvas)
             //websocket connection
             connectAndSubscribe();
         },
@@ -63,12 +69,12 @@ var app = (function () {
             pt=new Point(px,py);
             console.info("publishing point at "+pt.x + " " + pt.y);
             addPointToCanvas(pt);
-            //publicar el evento
         },
 
         sendPoint: function(){
         	sendTopicNewPt();
         },
+
 
         disconnect: function () {
             if (stompClient !== null) {
