@@ -20,7 +20,7 @@ package edu.eci.arsw.collabpaint.model;
  *
  * @author hcadavid
  */
-public class Point {
+public class Point  implements Comparable<Point>  {
     int x,y;
 
     public Point() {
@@ -51,5 +51,22 @@ public class Point {
     public String toString() {
         return "Point{" + "x=" + x + ", y=" + y + '}';
     }
+
+
+    
+    public boolean equals(Point pt){
+        if (pt.getX() == this.getX() &&  pt.getY() == this.getY()) return true;
+        return false;
+    }
+
+    @Override
+    public int compareTo(Point other) {
+        if (x != other.x)
+			return Integer.compare(x, other.x);
+		else
+			return Integer.compare(y, other.y);
+	}
+
+
     
 }

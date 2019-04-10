@@ -18,6 +18,22 @@ var app = (function () {
         ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
         ctx.stroke();
     };
+
+    var createPolygon = function(polygon){
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+        ctx.fillStyle = '#f00';
+        var org =  polygon[0];
+        ctx.moveTo(org.x, org.y);
+        for(var i = 1; i < polygon.length; i++){
+        	var elem =  polygon[i];
+    		ctx.lineTo(elem.x,elem.y);
+        }
+        ctx.lineTo(org.x,org.y);
+    	ctx.closePath();
+    	ctx.fill();
+
+    }
     
     
     var getMousePosition = function (evt) {
@@ -33,11 +49,12 @@ var app = (function () {
     //https://stackoverflow.com/questions/23744605/javascript-get-x-and-y-coordinates-on-mouse-click
     var sendFromCanvas = function(env){
         var pos = getMousePosition(env)
-      	stompClient.send("/topic/newpoint."+channel, {}, JSON.stringify(pos));
+        console.log("aca");
+      	stompClient.send("/app/newpoint."+channel, {}, JSON.stringify(pos));
     };
     
     var sendTopicNewPt = function(){
-        stompClient.send("/topic/newpoint."+channel, {}, JSON.stringify(pt)); 
+        stompClient.send("/app/newpoint."+channel, {}, JSON.stringify(pt)); 
     };
 
     var connectAndSubscribe = function () {
@@ -49,6 +66,11 @@ var app = (function () {
             stompClient.subscribe('/topic/newpoint.'+channel, function (eventbody) {
                 var ptn=JSON.parse(eventbody.body);
                 addPointToCanvas(ptn);
+            });
+            stompClient.subscribe('/topic/newpolygon.'+channel, function (eventbody) {
+                var polygon=JSON.parse(eventbody.body);
+                console.log("Holaaa " + polygon);
+                createPolygon(polygon);
             });
         });
     };
