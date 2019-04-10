@@ -9,6 +9,7 @@ var app = (function () {
     
     var stompClient = null;
     var pt = null;
+    var channel = null;
     
     var addPointToCanvas = function (point) {        
         var canvas = document.getElementById("canvas");
@@ -32,22 +33,20 @@ var app = (function () {
     //https://stackoverflow.com/questions/23744605/javascript-get-x-and-y-coordinates-on-mouse-click
     var sendFromCanvas = function(env){
         var pos = getMousePosition(env)
-        console.log(pos.x + " " + pos.y );
-    	stompClient.send("/topic/newpoint", {}, JSON.stringify(pos));
+      	stompClient.send("/topic/newpoint."+channel, {}, JSON.stringify(pos));
     };
     
     var sendTopicNewPt = function(){
-        stompClient.send("/topic/newpoint", {}, JSON.stringify(pt)); 
+        stompClient.send("/topic/newpoint."+channel, {}, JSON.stringify(pt)); 
     };
 
     var connectAndSubscribe = function () {
         console.info('Connecting to WS...');
         var socket = new SockJS('/stompendpoint');
         stompClient = Stomp.over(socket);
-        //subscribe to /topic/TOPICXX when connections succeed
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            stompClient.subscribe('/topic/newpoint', function (eventbody) {
+            stompClient.subscribe('/topic/newpoint.'+channel, function (eventbody) {
                 var ptn=JSON.parse(eventbody.body);
                 addPointToCanvas(ptn);
             });
@@ -60,9 +59,16 @@ var app = (function () {
 
         init: function () {
             var can = document.getElementById("canvas");
-            can.addEventListener('click',sendFromCanvas)
-            //websocket connection
-            connectAndSubscribe();
+            can.addEventListener('click',sendFromCanvas);
+            if($("#channel").val() == ""){
+                alert("The channel can not null");
+            }else if(channel !=""){
+                app.disconnect();
+                channel  = $("#channel").val();
+                connectAndSubscribe();
+            }else{      
+                connectAndSubscribe();
+            }
         },
 
         publishPoint: function(px,py){
@@ -80,7 +86,7 @@ var app = (function () {
             if (stompClient !== null) {
                 stompClient.disconnect();
             }
-            setConnected(false);
+            //setConnected(false);
             console.log("Disconnected");
         }
     };

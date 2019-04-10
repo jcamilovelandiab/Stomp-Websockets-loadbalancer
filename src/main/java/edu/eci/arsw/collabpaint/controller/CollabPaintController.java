@@ -7,8 +7,8 @@ import org.springframework.messaging.handler.annotation.*;
 @Controller
 public class CollabPaintController {
 
-    @MessageMapping("/topic/newpoint")
-    @SendTo("/topic/newpoint")
+    @MessageMapping("/topic/newpoint.channel")
+    @SendTo("/topic/newpoint.channel")
     public Point sendMessage(@Payload Point point) {
         System.out.println(point.getX() +  " , " + point.getY());
         return point;
