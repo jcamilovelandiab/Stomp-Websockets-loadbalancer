@@ -22,5 +22,5 @@ public class CollabPaintWebSocketConfig extends AbstractWebSocketMessageBrokerCo
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
     	registry.addEndpoint("/stompendpoint").setAllowedOrigins("*").withSockJS();        
     }
-    
+
 }
